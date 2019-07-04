@@ -9,13 +9,12 @@ Naming scheme:
 
 Filename will be a formatted datetime, down to the nanosecond to avoid naming collision.
 
-Currently hardcoded to use `aws.APSoutheast2` as the bucket location, but shouldn't be hard to change.
-
 Require environment variables:
 
 ```
 AWS_ACCESS_KEY_ID=xxx
 AWS_SECRET_ACCESS_KEY=xxx
+AWS_REGION=us-east-1
 S3_BUCKET=xxx
 ```
 
@@ -23,7 +22,7 @@ either exported or injected somehow, or on the command line.
 
 Example usage:
 
-`cat samples/1161 | AWS_ACCESS_KEY_ID=<your access key id> AWS_SECRET_ACCESS_KEY=<your secret key> S3_BUCKET=<your bucket name> go run main.go`
+`cat samples/1161 | AWS_REGION=<region> AWS_ACCESS_KEY_ID=<your access key id> AWS_SECRET_ACCESS_KEY=<your secret key> S3_BUCKET=<your bucket name> go run main.go`
 
 
 This is designed with the intention of working with an Alaveteli installation to separate mail parsing out from the main Rails app installation.

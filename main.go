@@ -1,13 +1,15 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"time"
 
-	"launchpad.net/goamz/aws"
-	"launchpad.net/goamz/s3"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3"
 )
 
 func main() {
@@ -18,18 +20,26 @@ func main() {
 	buf, err := ioutil.ReadAll(os.Stdin)
 	checkErr(err)
 
-	auth, err := aws.EnvAuth()
-	checkErr(err)
+	auth := session.Must(session.NewSession())
 
 	// Open Bucket
-	s := s3.New(auth, aws.APSoutheast2)
-	bucket := s.Bucket(bucketName)
+	s := s3.New(auth)
+	_, err = s.HeadBucket(&s3.HeadBucketInput{Bucket: aws.String(bucketName)})
+	checkErr(err)
 
 	t := time.Now()
 	fileName := formatTime(t)
 
-	err = bucket.Put(fileName, buf, "text/plain", s3.BucketOwnerFull)
+	params := &s3.PutObjectInput{
+		Bucket: aws.String(bucketName),
+		Key:	aws.String(fileName),
+		Body:	bytes.NewReader(buf),
+		ContentType:	aws.String("text/plain"),
+		ACL:	aws.String("bucket-owner-full-control"),
+	}
+	result, err := s.PutObject(params)
 	checkErr(err)
+	fmt.Println(result)
 	fmt.Printf("Successfully received email and saved in S3 as %s\n", fileName)
 }
 
